@@ -1,0 +1,33 @@
+# Локальное окружение
+Python/venv/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+*.log
+
+# Секреты
+.env
+.env.*
+
+# Артефакты обучения, не исходники
+*.onnx
+mlruns/
+.dvc/cache/
+
+# Аудио и локальные нарезки до записи лицензий в журнале плана
+/Sound sample/
+/fragments/
+/Python/mydata/
+
+# Временные файлы Office
+~$*
+
+# ОС
+Thumbs.db
+Desktop.ini

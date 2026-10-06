@@ -1,0 +1,14 @@
+D:\bird_audio\
+├── raw\
+│   ├── field\                    ← полевые записи (только в test)
+│   └── open_source\              ← Xeno-canto, Macaulay и т.д.
+├── fragments\                    ← нарезанные фрагменты 2.5 с (.wav)
+├── spectrograms\                 ← log-mel спектрограммы (.npy)
+│   └── window_config.json        ← единый конфиг окна
+├── manifest_fragments.csv        ← манифест с разметкой и сплитами
+└── scripts\
+    ├── cut_fragments.py
+    ├── generate_spectrograms.py
+    ├── split_dataset.py
+    ├── validate_dataset.py
+    └── convert_ls_export.py

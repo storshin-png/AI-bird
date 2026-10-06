@@ -1,0 +1,24 @@
+Шаг 1. Сбор исходных записей
+   └─→ Папка: D:\bird_audio\raw\
+       ├── field\          (полевые записи → только в test)
+       └── open_source\    (Xeno-canto, Macaulay и т.д.)
+
+Шаг 2. Нарезка на фрагменты 2.5 с
+   └─→ python cut_fragments.py --input D:\bird_audio\raw --output D:\bird_audio\fragments
+
+Шаг 3. Разметка в Label Studio
+   └─→ label-studio start
+       Загрузить фрагменты → разметить bird / no_bird / unsure
+       Экспорт: JSON → конвертировать в CSV
+
+Шаг 4. Генерация спектрограмм
+   └─→ python generate_spectrograms.py --input D:\bird_audio\fragments ^
+              --output D:\bird_audio\spectrograms ^
+              --manifest D:\bird_audio\manifest_fragments.csv
+
+Шаг 5. Разделение на сплиты
+   └─→ python split_dataset.py --manifest D:\bird_audio\manifest_fragments.csv ^
+              --field-source "field_"
+
+Шаг 6. Проверка баланса и качества
+   └─→ python validate_dataset.py (см. ниже)
