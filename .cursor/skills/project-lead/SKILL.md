@@ -35,6 +35,8 @@ disable-model-invocation: true
 
 ## Агенты
 
+Контроль GitHub ведёт `auditor`. Советы по организации работы ведёт `advisor`. Этот агент только выдаёт пакеты.
+
 | Skill | Зона |
 |---|---|
 | `ml-agent` | `ml/` |
