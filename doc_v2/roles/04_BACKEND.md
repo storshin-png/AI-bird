@@ -3,7 +3,10 @@
 Версия: 1.1
 Статус: в работе с 06.10.2026, режим контроля
 План: `../IMPLEMENTATION_PLAN.md`
-ТЗ агентов: `../AI_AGENTS_SPEC.md` §4.1–4.5
+Участник: krisstyushac@gmail.com
+Инструкция: `../instructions/04_BACKEND.md`
+ТЗ агента: `../agents/04_BACKEND.md`
+Чеклисты облака: `../AI_AGENTS_SPEC.md` §4.1–4.5
 Календарь при старте подготовки 05.10.2026.
 
 ## Режим
