@@ -1,0 +1,34 @@
+name: Пакет агенту
+description: Владелец зоны ставит один пакет по текущему направлению
+title: "Пакет: "
+body:
+  - type: input
+    id: zone
+    attributes:
+      label: Зона и ветка
+      placeholder: cloud/compose
+    validations:
+      required: true
+  - type: input
+    id: spec
+    attributes:
+      label: ТЗ
+      placeholder: doc_v2/agents/04_BACKEND.md
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Что сдаётся
+    validations:
+      required: true
+  - type: textarea
+    id: bounds
+    attributes:
+      label: Границы
+      value: |
+        Функции вне MVP не делаются.
+        Окно анализа, API и схема БД этим пакетом не меняются.
+        Спектрограммы читают config/window_config.yaml.
+    validations:
+      required: true

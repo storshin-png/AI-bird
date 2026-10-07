@@ -3,6 +3,9 @@
 Версия: 1.1
 Статус: в работе с 06.10.2026, режим контроля
 План: `../IMPLEMENTATION_PLAN.md`
+Участник: karimovad39@gmail.com
+Инструкция: `../instructions/06_GIS.md`
+ТЗ агента: `../agents/06_GIS.md`
 ТЗ: `../AI_AGENTS_SPEC.md` §4.6, экраны — `../MVP_SPEC.md` §2.3
 Календарь при старте подготовки 05.10.2026.
 

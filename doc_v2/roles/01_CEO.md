@@ -3,6 +3,9 @@
 Версия: 1.1
 Статус: в работе с 06.10.2026, режим контроля
 План: `../IMPLEMENTATION_PLAN.md`
+Участник: s.torshin@gmail.com, GitHub `storshin-png`
+Инструкция: `../instructions/01_CEO_ML.md`
+ТЗ агента ML: `../agents/03_ML.md`
 Календарь зафиксирован стартом подготовки 05.10.2026.
 
 ## Режим

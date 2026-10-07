@@ -1,0 +1,73 @@
+# Совместная работа
+
+Версия: 1.0
+Дата: 2026-10-07
+Статус: действует
+План продукта: `IMPLEMENTATION_PLAN.md`
+Репозиторий: https://github.com/storshin-png/AI-bird.git
+
+Люди управляют агентами и приносят результат в GitHub. Среду агента каждый выбирает сам. Сборку в ветку `main` принимает CEO.
+
+---
+
+## 1. Состав
+
+| Участник | Роли | Зоны в репозитории | Инструкция | ТЗ агента |
+|---|---|---|---|---|
+| GitHub `storshin-png`, s.torshin@gmail.com | CEO, Lead ML | весь репозиторий; исполнение в `ml/`, `data/` | `instructions/01_CEO_ML.md` | `agents/03_ML.md` |
+| olgatorshina7@gmail.com | орнитолог, полевые операции | `data/species/`, `data/annotation/`, `data/field/` | `instructions/05_07_ORNITHOLOGIST_FIELD.md` | `agents/05_ORNITHOLOGIST.md`, `agents/07_FIELD.md` |
+| KazakovDmitryS@gmail.com | CTO | `firmware/`, `hardware/`, `config/window_config.yaml` | `instructions/02_CTO.md` | `agents/02_CTO.md` |
+| krisstyushac@gmail.com | Lead Backend | `cloud/`, черновики API в `contracts/` | `instructions/04_BACKEND.md` | `agents/04_BACKEND.md` |
+| karimovad39@gmail.com | GIS | `web/` | `instructions/06_GIS.md` | `agents/06_GIS.md` |
+
+Общие правила пуша — `instructions/00_COMMON.md`. Календарь задач по ролям — `roles/`. Облако и веб подробно — `AI_AGENTS_SPEC.md`.
+
+Почта в таблице должна быть подтверждена в аккаунте GitHub, иначе запрос ревью не дойдёт.
+
+---
+
+## 2. Как устроено руководство
+
+CEO направляет работу и один принимает `main`. Владелец зоны ставит агенту пакет, читает результат и открывает pull request. Автор запроса сам себе ревью не ставит.
+
+| Шаг | Кто |
+|---|---|
+| Направление на подготовку или спринт | CEO, файл в `directions/` |
+| Пакет агенту по этому направлению | владелец зоны |
+| Проверка чеклиста зоны | владелец зоны, до push |
+| Pull request в `main` | владелец зоны |
+| Проверка `ci` | GitHub Actions |
+| Мерж или возврат | CEO |
+
+Возврат — список замечаний в запросе. Блок — решение, которое агент не закрывает: лицензия, локация, виды, закупка, допуск на площадку. Такое решение записывает CEO в журнал `IMPLEMENTATION_PLAN.md` §8.
+
+Смена окна анализа, API и схемы БД — отдельный запрос с пометкой `contract`. Окно меняет CTO, API и схему — Lead Backend, мерж и в этом случае у CEO.
+
+---
+
+## 3. Ветки и запросы
+
+В `main` коммиты напрямую не кладут. Ветка называется `<зона>/<короткая-задача>`: `ml/window-config`, `cloud/compose`, `firmware/capture`, `web/map-shell`, `data/species-table`, `field/forms`, `hardware/stand`.
+
+Один запрос — один пакет одной зоны. Описание заполняет шаблон GitHub: роль, ссылка на ТЗ, чеклист, команда проверки.
+
+Текущее направление: `directions/2026-10-07-prep.md`.
+
+---
+
+## 4. Что собирает GitHub
+
+На каждый push и pull request запускается проверка `ci`:
+
+- `config/window_config.yaml` совпадает с рамкой MVP;
+- скрипты в `ml/` и `contracts/` компилируются.
+
+Запрос без зелёной проверки в `main` не попадает. Секреты, виртуальное окружение, сырое аудио и временные файлы Office в репозиторий не кладут (`.gitignore`).
+
+Стенд облака (PostgreSQL, PostGIS, TimescaleDB, MQTT, MinIO, Redis) собирает агент Backend по `agents/04_BACKEND.md`. Это первый пакет зоны `cloud/`, а не часть уже включённой проверки.
+
+---
+
+## 5. Ближайшие развилки
+
+До 16.10.2026 в журнале плана остаются локация, список 50 видов и лицензии источников. Обучение NN3 начинается после записи лицензий. Длинный цикл на 5 пилотных датчиков без отдельного решения CEO не заказывается. Сезон пилота уже утверждён: 11.01.2027 – 05.02.2027.

@@ -1,0 +1,22 @@
+name: Направление работы
+description: CEO задаёт пакеты на подготовку или спринт
+title: "Направление: "
+labels: []
+body:
+  - type: input
+    id: period
+    attributes:
+      label: Срок
+      placeholder: 19.10.2026 – 30.10.2026
+    validations:
+      required: true
+  - type: textarea
+    id: packets
+    attributes:
+      label: Пакеты
+      description: По одному пакету на зону. Файл в doc_v2/directions/ остаётся записью в репозитории.
+      placeholder: |
+        ML — ветка ml/... — результат
+        CTO — ветка hardware/... — результат
+    validations:
+      required: true
