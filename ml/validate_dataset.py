@@ -16,20 +16,7 @@ import pandas as pd
 from pathlib import Path
 from collections import Counter
 
-
-# ============================================================
-# ЕДИНЫЙ КОНФИГ ОКНА АНАЛИЗА (из DATASET_STRATEGY / ARCHITECTURE / MVP_SPEC)
-# ============================================================
-EXPECTED_CONFIG = {
-    "window_sec": 2.5,
-    "sr": 44100,
-    "n_fft": 1024,
-    "hop_spectro": 512,
-    "window_fn": "hann",
-    "fmax": 22050,
-    "repr": "log_mel",
-    "n_mels": 128,
-}
+from window_config import load_window_config
 
 # Целевое распределение позитивов (DATASET_STRATEGY, раздел 3)
 TARGET_DISTRIBUTION = {
@@ -52,9 +39,10 @@ def print_header(title: str):
     print("=" * 60)
 
 
-def validate(manifest_path: str, spectro_dir: str):
+def validate(manifest_path: str, spectro_dir: str, window_config_path: str | None = None):
     manifest_path = Path(manifest_path)
     spectro_dir = Path(spectro_dir)
+    cfg = load_window_config(Path(window_config_path) if window_config_path else None)
 
     print_header("ВАЛИДАЦИЯ ДАТАСЕТА (DATASET_STRATEGY v2.1)")
 
@@ -83,11 +71,11 @@ def validate(manifest_path: str, spectro_dir: str):
             config = json.load(f)
 
         mismatches = []
-        for key, expected in EXPECTED_CONFIG.items():
+        for key, expected in cfg.items():
             actual = config.get(key)
             if actual != expected:
                 mismatches.append((key, expected, actual))
-            print(f"  {key:15s}: {actual} (ожидается {expected})")
+            print(f"  {key}: {actual} (ожидается {expected})")
 
         if mismatches:
             print(f"[FAIL] Конфиг не совпадает с единым конфигом!")
@@ -204,13 +192,14 @@ def validate(manifest_path: str, spectro_dir: str):
     # Проверка размера спектрограмм
     if spec_files:
         sample = np.load(spec_files[0])
-        n_mels = EXPECTED_CONFIG["n_mels"]
-        expected_frames = int(EXPECTED_CONFIG["window_sec"] * EXPECTED_CONFIG["sr"]
-                              / EXPECTED_CONFIG["hop_spectro"]) + 1
-        print(f"\n  Ожидаемый размер: ({n_mels}, ~{expected_frames})")
+        expected_frames = int(
+            cfg["window_length_sec"] * cfg["sample_rate"] / cfg["hop_length"]
+        ) + 1
+        frames = sample.shape[-1]
+        print(f"\n  Ожидаемых кадров по hop: ~{expected_frames}")
         print(f"  Фактический размер: {sample.shape}")
 
-        if sample.shape[0] == n_mels and abs(sample.shape[1] - expected_frames) <= 2:
+        if abs(frames - expected_frames) <= 2:
             print(f"[OK] Размер спектрограмм соответствует единому конфигу")
             results["pass"] += 1
         else:
@@ -237,8 +226,12 @@ def validate(manifest_path: str, spectro_dir: str):
 
     # Длина окна
     if "duration_sec" in df.columns:
-        all_2_5 = (df["duration_sec"] == EXPECTED_CONFIG["window_sec"]).all()
-        criteria.append(("Все фрагменты равны длине окна анализа (2.5 с)", bool(all_2_5)))
+        window_sec = cfg["window_length_sec"]
+        all_match = (df["duration_sec"] == window_sec).all()
+        criteria.append((
+            f"Все фрагменты равны длине окна анализа ({window_sec} с)",
+            bool(all_match),
+        ))
 
     # Версионирование
     criteria.append(("Датасет версионирован (DVC)", False))  # Ручная проверка
@@ -272,22 +265,24 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Пример запуска:
-  python validate_dataset.py --manifest "D:\\bird_audio\\manifest_fragments.csv" --spectro "D:\\bird_audio\\spectrograms"
-
-Или с путями по умолчанию (если файлы в текущей директории):
-  python validate_dataset.py
+  python ml/validate_dataset.py --manifest data/manifest_fragments.csv --spectro data/spectrograms
         """
     )
     parser.add_argument(
         "--manifest",
-        default="manifest_fragments.csv",
-        help="Путь к CSV манифесту (по умолчанию: manifest_fragments.csv)"
+        required=True,
+        help="Путь к CSV манифесту фрагментов",
     )
     parser.add_argument(
         "--spectro",
-        default="spectrograms",
-        help="Папка со спектрограммами .npy (по умолчанию: spectrograms)"
+        required=True,
+        help="Папка со спектрограммами .npy",
+    )
+    parser.add_argument(
+        "--window-config",
+        default=None,
+        help="Путь к window_config.yaml (по умолчанию config/window_config.yaml репозитория)",
     )
     args = parser.parse_args()
 
-    validate(args.manifest, args.spectro)
+    validate(args.manifest, args.spectro, args.window_config)

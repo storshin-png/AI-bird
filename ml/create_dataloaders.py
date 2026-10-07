@@ -59,12 +59,12 @@ def main():
     parser.add_argument(
         "--manifest",
         required=True,
-        help="Путь к CSV манифесту (например: D:\\bird_audio\\manifest_fragments.csv)"
+        help="Путь к CSV манифесту фрагментов"
     )
     parser.add_argument(
         "--spectro",
         required=True,
-        help="Папка со спектрограммами .npy (например: D:\\bird_audio\\spectrograms)"
+        help="Папка со спектрограммами .npy"
     )
     parser.add_argument(
         "--batch-size",
