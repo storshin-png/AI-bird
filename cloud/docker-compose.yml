@@ -1,0 +1,79 @@
+name: aibird-stand
+
+services:
+  postgres:
+    build:
+      context: ./postgres
+    image: aibird-stand-postgres:pg16-postgis3.4-timescaledb2
+    pull_policy: build
+    env_file:
+      - .env.example
+    environment:
+      TIMESCALEDB_TELEMETRY: "off"
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "127.0.0.1:1883:1883"
+    volumes:
+      - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mqtt_data:/mosquitto/data
+      - mqtt_log:/mosquitto/log
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h 127.0.0.1 -t '$$SYS/broker/version' -C 1 -W 3"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  minio:
+    # Официальный minio/minio с открытых реестров снят. Silo — тот же S3 API,
+    # те же MINIO_ROOT_USER / MINIO_ROOT_PASSWORD и команда server.
+    image: pgsty/silo:RELEASE.2026-09-16T00-00-00Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    env_file:
+      - .env.example
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "silo", "healthcheck", "ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine
+    env_file:
+      - .env.example
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mqtt_data:
+  mqtt_log:
+  minio_data:
+  redis_data:
