@@ -5,6 +5,7 @@ services:
     build:
       context: ./postgres
     image: aibird-stand-postgres:pg16-postgis3.4-timescaledb2
+    pull_policy: build
     env_file:
       - .env.example
     environment:

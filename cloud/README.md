@@ -6,7 +6,7 @@
 
 | Сервис | Образ | Порт на этой машине |
 |---|---|---|
-| PostgreSQL 16.4, PostGIS 3.4, TimescaleDB 2.17.2 | сборка `postgres/` | 127.0.0.1:5432 |
+| PostgreSQL 16.15, PostGIS 3.4, TimescaleDB 2.17.2 | сборка `postgres/` | 127.0.0.1:5432 |
 | Брокер MQTT | `eclipse-mosquitto:2.0` | 127.0.0.1:1883 |
 | Хранилище, совместимое с S3 | `pgsty/silo:RELEASE.2026-09-16T00-00-00Z` | API 127.0.0.1:9000, консоль 127.0.0.1:9001 |
 | Redis | `redis:7.4-alpine` | 127.0.0.1:6379 |
