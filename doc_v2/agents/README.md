@@ -9,6 +9,8 @@
 | `project-lead` | CEO | направление и пакеты |
 | `auditor` | CEO | состояние GitHub, без правок |
 | `advisor` | CEO | советы по организации работы |
+| `product-owner` | CEO | облик продукта |
+| `analyst` | CEO | разбор открытых проектов, первый пакет `../packets/AN-001.md` |
 | `ml-agent` | CEO | `03_ML.md` |
 | `cto-agent` | KazakovDmitryS@gmail.com | `02_CTO.md` |
 | `backend-agent` | krisstyushac@gmail.com | `04_BACKEND.md` |
