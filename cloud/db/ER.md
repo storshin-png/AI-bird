@@ -1,6 +1,6 @@
 # ER-диаграмма схемы MVP
 
-Источник — миграции `migrations/versions/0001`–`0004`. Требования — `doc_v2/AI_AGENTS_SPEC.md` §4.1.
+Источник — миграции `migrations/versions/0001`–`0005`. Требования — `doc_v2/AI_AGENTS_SPEC.md` §4.1.
 
 Сплошная связь — внешний ключ в БД. Пунктир — ссылка по `event_id` и `timestamp_utc` без внешнего ключа: `events` — гипертаблица TimescaleDB с составным ключом.
 
