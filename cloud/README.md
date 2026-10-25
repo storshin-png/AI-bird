@@ -124,12 +124,22 @@ docker compose exec postgres psql -U aibird -d aibird -c "SELECT count(*), count
 
 Модуль `backend/`: подписка на `birdnet/{device_id}/telemetry`, `/event`, `/heartbeat`, запись в БД с дедупликацией и REST датчиков, журнала обслуживания и телеметрии. Формат пакетов — `backend/docs/MQTT_PAYLOADS.md`, запуск — `backend/README.md`.
 
+## Генератор событий
+
+Модуль `simulator/`: синтетические датчики, события с направлением, локальные треки, пакеты MQTT и 4-канальные WAV по `config/window_config.yaml`. Нужен для стенда и сквозного сценария, пока нет плат:
+
+```text
+python -m simulator --register --mqtt 127.0.0.1:1883
+```
+
+Подробности — `simulator/README.md`.
+
 ## Тесты
 
 Из каталога `cloud/`:
 
 ```text
-pytest backend auth_service --cov=backend --cov=auth_service
+pytest simulator backend auth_service --cov=simulator --cov=backend --cov=auth_service
 ```
 
 `.coveragerc` включает учёт greenlet: без него coverage не видит код внутри асинхронных запросов SQLAlchemy.
