@@ -58,8 +58,10 @@ python -m auth_service create-user --email client@acme.ru --role b2b_client --cl
 Из каталога `cloud/`:
 
 ```text
-uvicorn --factory auth_service.app:create_app --port 8001
+uvicorn --factory auth_service.app:create_app --port 8001 --loop asyncio:SelectorEventLoop
 ```
+
+`--loop asyncio:SelectorEventLoop` нужен на Windows: без него uvicorn берёт цикл событий, с которым драйвер PostgreSQL в async-режиме не работает, и первый же запрос к БД падает. На Linux и macOS флаг ничего не меняет.
 
 Документация OpenAPI: http://127.0.0.1:8001/docs
 

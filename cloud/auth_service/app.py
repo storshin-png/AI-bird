@@ -1,7 +1,10 @@
 """FastAPI-приложение авторизации.
 
 Запуск из каталога cloud/:
-    uvicorn --factory auth_service.app:create_app --port 8001
+    uvicorn --factory auth_service.app:create_app --port 8001 --loop asyncio:SelectorEventLoop
+
+--loop asyncio:SelectorEventLoop обязателен на Windows: там uvicorn по
+умолчанию берёт ProactorEventLoop, с которым psycopg в async-режиме не работает.
 """
 
 from contextlib import asynccontextmanager

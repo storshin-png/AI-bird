@@ -74,7 +74,8 @@ def main(argv: list[str] | None = None, store_factory=SqlAuthStore.from_url) -> 
         return 0
 
     try:
-        user_id = asyncio.run(_create_user(args, store_factory))
+        # SelectorEventLoop: psycopg в async-режиме не работает с ProactorEventLoop Windows.
+        user_id = asyncio.run(_create_user(args, store_factory), loop_factory=asyncio.SelectorEventLoop)
     except WeakPasswordError as exc:
         print(f"Пароль не подходит: {exc}", file=sys.stderr)
         return 1
