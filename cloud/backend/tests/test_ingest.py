@@ -93,3 +93,17 @@ def test_bad_payloads_rejected_with_reason(engine, db, capsys):
     assert '"reason": "bad_json"' in out and '"event": "rejected"' in out
     assert '"unknown_fields"' in out and '"trace_id"' in out
     assert svc.counters["rejected:bad_json"] == 1 and svc.counters["rejected:bad_topic"] == 1
+
+
+def test_heartbeat_and_telemetry_in_same_second(engine, db):
+    dev = db.device("same")
+    svc = IngestService(engine)
+    t = ts()
+    eid = str(uuid.uuid4())
+    assert send(svc, f"birdnet/{dev}/heartbeat", timestamp_utc=t, battery_v=3.7).status is Status.STORED
+    assert send(svc, f"birdnet/{dev}/telemetry", timestamp_utc=t, bird_flag=True, event_id=eid).status \
+        is Status.STORED
+    assert send(svc, f"birdnet/{dev}/telemetry", timestamp_utc=t, bird_flag=True, event_id=eid).status \
+        is Status.DUPLICATE
+    assert send(svc, f"birdnet/{dev}/heartbeat", timestamp_utc=t, battery_v=3.7).status is Status.DUPLICATE
+    assert db.scalar("SELECT count(*) FROM telemetry WHERE device_id = :d", d=dev) == 2

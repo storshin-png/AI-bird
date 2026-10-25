@@ -3,7 +3,8 @@
 Повтор пакета не плодит строк:
 - событие — по event_id: второе событие с тем же event_id не пишется,
   даже если время в нём другое;
-- телеметрия и heartbeat — по паре (device_id, timestamp_utc).
+- телеметрия и heartbeat — по (device_id, timestamp_utc, event_id, bird_flag):
+  heartbeat и телеметрия одной секунды — разные пакеты, оба пишутся.
 
 Неизвестный или списанный device_id — отказ с причиной в логе.
 """
@@ -44,7 +45,12 @@ _INSERT_TELEMETRY = text(
                            azimuth_geo_deg, azimuth_confidence, track_id, quality_flag, event_id)
     SELECT :ts, :device_id, :battery_v, :temperature_c, :bird_flag, :bird_probability,
            :azimuth_geo_deg, :azimuth_confidence, :track_id, :quality_flag, :event_id
-    WHERE NOT EXISTS (SELECT 1 FROM telemetry WHERE device_id = :device_id AND timestamp_utc = :ts)
+    WHERE NOT EXISTS (
+        SELECT 1 FROM telemetry
+        WHERE device_id = :device_id AND timestamp_utc = :ts
+          AND event_id IS NOT DISTINCT FROM CAST(:event_id AS UUID)
+          AND bird_flag IS NOT DISTINCT FROM CAST(:bird_flag AS BOOLEAN)
+    )
     RETURNING id
     """
 )
