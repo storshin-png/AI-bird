@@ -1,6 +1,6 @@
 # Облако
 
-Локальный стенд подготовки, схема БД MVP и модуль авторизации. Остального API и моделей пока нет. Трекинг не входит.
+Локальный стенд подготовки, схема БД MVP, модуль авторизации и приём телеметрии по MQTT с REST устройств. Пайплайна моделей, треков и приёма WAV пока нет.
 
 ## Состав
 
@@ -119,3 +119,17 @@ docker compose exec postgres psql -U aibird -d aibird -c "SELECT count(*), count
 ## Авторизация
 
 Модуль `auth_service/`: вход по email и паролю, JWT RS256, роли. Запуск, переменные окружения и примеры запросов — `auth_service/README.md`.
+
+## Приём телеметрии и устройства
+
+Модуль `backend/`: подписка на `birdnet/{device_id}/telemetry`, `/event`, `/heartbeat`, запись в БД с дедупликацией и REST датчиков, журнала обслуживания и телеметрии. Формат пакетов — `backend/docs/MQTT_PAYLOADS.md`, запуск — `backend/README.md`.
+
+## Тесты
+
+Из каталога `cloud/`:
+
+```text
+pytest backend auth_service --cov=backend --cov=auth_service
+```
+
+`.coveragerc` включает учёт greenlet: без него coverage не видит код внутри асинхронных запросов SQLAlchemy.
