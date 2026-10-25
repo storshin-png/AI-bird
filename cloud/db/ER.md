@@ -1,6 +1,6 @@
 # ER-диаграмма схемы MVP
 
-Источник — миграции `migrations/versions/0001`–`0005`. Требования — `doc_v2/AI_AGENTS_SPEC.md` §4.1.
+Источник — миграции `migrations/versions/0001`–`0006`. Требования — `doc_v2/AI_AGENTS_SPEC.md` §4.1.
 
 Сплошная связь — внешний ключ в БД. Пунктир — ссылка по `event_id` и `timestamp_utc` без внешнего ключа: `events` — гипертаблица TimescaleDB с составным ключом.
 
@@ -25,6 +25,7 @@ erDiagram
     species |o--o{ tracks : "species_id"
     species |o--o{ unknown_queue : "suggested / verified"
     users |o--o{ unknown_queue : "verified_by"
+    users ||--o{ refresh_tokens : "user_id"
 
     tracks ||--o{ track_events : "track_id"
     events ||..o{ bearings : "event_id"
@@ -162,6 +163,14 @@ erDiagram
         text comment
         timestamptz created_at
         timestamptz updated_at
+    }
+    refresh_tokens {
+        uuid jti PK "jti из JWT"
+        uuid user_id FK
+        timestamptz issued_at
+        timestamptz expires_at
+        timestamptz revoked_at
+        uuid replaced_by
     }
     maintenance_logs {
         uuid id PK

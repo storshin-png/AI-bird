@@ -1,6 +1,6 @@
 # Облако
 
-Локальный стенд подготовки и схема БД MVP. API и моделей пока нет. Трекинг не входит.
+Локальный стенд подготовки, схема БД MVP и модуль авторизации. Остального API и моделей пока нет. Трекинг не входит.
 
 ## Состав
 
@@ -59,6 +59,7 @@ docker compose exec mqtt mosquitto_pub -h 127.0.0.1 -t stand/ping -m ok
 | `0003` | `tracks`, `track_events`, `unknown_queue`, `maintenance_logs` |
 | `0004` | Seed четырёх ролей: `super_admin`, `lead_ornithologist`, `field_engineer`, `b2b_client` |
 | `0005` | Seed 50 видов пилота из `data/species/species.csv` |
+| `0006` | `refresh_tokens` для модуля авторизации |
 
 Виды в `0005` — снимок предварительного списка орнитолога (`data/species/species.csv`, PR #13). Строки вписаны в миграцию: если список изменится, изменения идут новой миграцией.
 
@@ -114,3 +115,7 @@ docker compose exec postgres psql -U aibird -d aibird -c "SELECT count(*), count
 ```
 
 Ожидается: три гипертаблицы, три GIST-индекса (`devices`, `bearings`, `tracks`), одна политика ретеншена для `telemetry`, четыре роли, 50 видов.
+
+## Авторизация
+
+Модуль `auth_service/`: вход по email и паролю, JWT RS256, роли. Запуск, переменные окружения и примеры запросов — `auth_service/README.md`.
