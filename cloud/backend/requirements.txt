@@ -1,0 +1,4 @@
+-r ../auth_service/requirements.txt
+aiomqtt==2.3.0
+paho-mqtt==2.1.0
+structlog==24.4.0

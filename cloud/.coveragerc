@@ -1,0 +1,12 @@
+# Настройки coverage для тестов cloud/. SQLAlchemy async выполняет код в greenlet,
+# без concurrency = greenlet эти строки считаются непокрытыми.
+[run]
+concurrency = thread, greenlet
+omit =
+    */tests/*
+    */__main__.py
+
+[report]
+exclude_also =
+    \.\.\.$
+    if __name__ == .__main__.:
