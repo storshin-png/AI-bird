@@ -1,2 +1,5 @@
 .env
 !.env.example
+
+# Ключи подписи JWT: создаются командой python -m auth_service keys
+auth_service/keys/
