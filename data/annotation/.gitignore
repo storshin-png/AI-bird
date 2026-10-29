@@ -1,0 +1,3 @@
+# Очереди и экспорты Label Studio пересобираются, в git не попадают
+queue_*.json
+export*.json

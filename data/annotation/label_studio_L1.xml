@@ -1,0 +1,27 @@
+<!--
+  Интерфейс разметки L1 для Label Studio. Правила — L1_INSTRUCTION.md.
+  Имена bird_label и fragment_type совпадают с ml/label_manifest.py и l1_export.py.
+  Номер прохода и пометку контроля разметчик не видит: в интерфейсе их нет.
+-->
+<View>
+  <Header value="Есть ли в окне 2.5 с голос птицы?"/>
+  <Audio name="audio" value="$audio" hotkey="space"/>
+
+  <Choices name="bird_label" toName="audio" choice="single-radio" required="true" showInline="true">
+    <Choice value="bird" hotkey="1"/>
+    <Choice value="no_bird" hotkey="2"/>
+    <Choice value="unsure" hotkey="3"/>
+  </Choices>
+
+  <View visibleWhen="choice-selected" whenTagName="bird_label" whenChoiceValue="bird">
+    <Header value="Тип позитива" size="5"/>
+    <Choices name="fragment_type" toName="audio" choice="single-radio" required="true" showInline="true">
+      <Choice value="dense" hotkey="q"/>
+      <Choice value="sparse" hotkey="w"/>
+      <Choice value="truncated" hotkey="e"/>
+    </Choices>
+  </View>
+
+  <Header value="Уверенность" size="6"/>
+  <Rating name="label_confidence" toName="audio" maxRating="3" icon="star" size="medium"/>
+</View>
