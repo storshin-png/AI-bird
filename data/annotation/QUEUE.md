@@ -1,0 +1,79 @@
+# Очередь разметки L1 и выгрузка в манифест
+
+Статус: утверждено 2026-10-29. Доли проверки: 10% второй проход, 5% golden set.
+
+Правила меток — `L1_INSTRUCTION.md`. Колонки и контроль качества — `doc_v2/Структура разметки датасета.md` §1.2, §1.5, §6.
+
+## Что здесь лежит
+
+| Файл | Кто ведёт | Что это |
+|---|---|---|
+| `label_studio_L1.xml` | агент | Интерфейс Label Studio: `bird` / `no_bird` / `unsure`, тип позитива для `bird`, уверенность 1–3 |
+| `l1_queue.py` | агент | Собирает очередь задач из манифеста |
+| `l1_export.py` | агент | Переносит экспорт Label Studio в колонки манифеста и готовит отчёт |
+| `l1_golden.py` | агент | Заготовка кандидатов в golden set с пустыми метками и проверка готового эталона |
+| `golden_set.csv` | **орнитолог** | Эталон: `fragment_id,label,fragment_type`. Агент его не создаёт и не правит |
+| `arbitration_L1.csv` | агент пишет, **орнитолог решает** | Все `unsure` и расхождения двух проходов |
+
+Скрипты — только стандартная библиотека Python 3.12, pandas не нужен.
+
+## Golden set
+
+Эталон размечает только орнитолог (§6.2). Скрипт меток не ставит.
+
+1. Заготовка, когда в манифесте появятся фрагменты:
+
+   ```text
+   python data/annotation/l1_golden.py pick --manifest data/manifest_fragments.csv
+   ```
+
+   В `golden_candidates.csv` около 5% фрагментов манифеста с пустыми `label` и `fragment_type`. Первыми идут фрагменты, уже решённые в `arbitration_L1.csv` (§6.3), решение видно в `note`. Фрагменты, которые уже есть в `golden_set.csv`, не повторяются.
+2. Орнитолог прослушивает, ставит `bird` или `no_bird`, для `bird` — `dense`, `sparse` или `truncated`, и сохраняет файл как `golden_set.csv`.
+3. Проверка:
+
+   ```text
+   python data/annotation/l1_golden.py check --manifest data/manifest_fragments.csv
+   ```
+
+## Цикл разметки
+
+1. **Очередь.** Из корня репозитория:
+
+   ```text
+   python data/annotation/l1_queue.py --manifest data/manifest_fragments.csv --out data/annotation/queue_L1.json --limit 300
+   ```
+
+   В очередь идут фрагменты без метки. Около 10% из них — второй раз (проход 2), для Cohen's Kappa. Около 5% — фрагменты golden set как контроль. Разметчик не видит, какой проход и где контроль. Тот же `--seed` даёт ту же очередь.
+
+2. **Label Studio.** Проект с интерфейсом `label_studio_L1.xml`. Аудио отдаётся как локальные файлы: адрес — `--audio-prefix` плюс `fragment_id`, по умолчанию `/data/local-files/?d=data/fragments/`. Импорт — `queue_L1.json`. Задачи одного фрагмента в проходах 1 и 2 должны достаться разным разметчикам.
+
+3. **Выгрузка.** Экспорт Label Studio в JSON, затем:
+
+   ```text
+   python data/annotation/l1_export.py --export export.json --manifest data/manifest_fragments.csv --output data/manifest_fragments.csv --version v0.1
+   ```
+
+   Заполняются `label`, `fragment_type`, `label_confidence`, `annotator_id`, `annotation_version`, `qa_status`. В конце — отчёт: сколько `bird` / `no_bird` / `unsure`, Kappa, точность каждого разметчика на golden set, доли `dense` / `sparse` / `truncated`.
+
+4. **Арбитраж.** Орнитолог открывает `arbitration_L1.csv` и в колонки `label` (`bird` или `no_bird`) и `fragment_type` (для `bird`) вписывает решение. Следующий запуск выгрузки переносит решения в манифест со статусом `arbitrated`. Решённые строки остаются в файле, а повторная выгрузка их не перезаписывает.
+
+## Как ставится `qa_status`
+
+| Случай | `label` | `qa_status` |
+|---|---|---|
+| Один проход | метка разметчика | `pending` |
+| Два прохода совпали | общая метка | `approved` |
+| Два прохода разошлись | пусто | `pending`, строка в арбитраже |
+| `unsure` | `unsure` | `pending`, строка в арбитраже |
+| Решение орнитолога | её метка | `arbitrated` |
+
+Фрагменты golden set в манифест из Label Studio не пишутся: эталон остаётся за орнитологом, и в обучающую выборку по ответам разметчиков он не попадает.
+
+## Пороги из §6
+
+- Cohen's Kappa по двум проходам — цель ≥ 0.85. Ниже — пересмотр инструкции.
+- Расхождение разметчика с golden set больше 15% — отчёт его отмечает, решение об отстранении за орнитологом.
+
+## Связь с `ml/label_manifest.py`
+
+Скрипт ML переносит только `label` и `fragment_type`. `l1_export.py` пишет те же значения в те же колонки и добавляет разметчика, версию, статус и арбитраж. Если ML захочет оставить один скрипт, это решение Lead ML.
